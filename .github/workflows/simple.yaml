@@ -14,4 +14,13 @@
         run:  |
           node -v
           npm -v
+  run-windows-commands:
+    runs-on:  windows-latest
+    needs:  ["run-shell-command"]
+    steps:
+      - name: Directory
+        run:  Get-Location
+      - name: Diretory bash
+        run: pwd
+        shell: bash
   
