@@ -1,23 +1,28 @@
- name: Terraform
+name: terraform
 
- on: [push]
+on: [push]
 
- jobs:
-  terraform:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: Setup Terraform
-        uses: harshicorp/setup-terraform@v2
+env:
+  AWS_ACCESS_KEY_ID: ${{secrets.ACCESS_KEY}}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+
+jobs:
+   terraform:
+     runs-on: ubuntu-latest
+     steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          #terraform_version:  1.1.7
-      - name: terraform init
-        run: terraform init
+         terraform_version: 1.1.9
+      - name: Init
+        run: |
+            eval ssh-agent -s
+            ssh-add - <<< '${{ secrets.SSH_KEY_GITHUB_ACTIONS}}'
+            terraform init
       - name: validate
         run: terraform validate
-      - name: format
-        run: terraform fmt -check
       - name: plan
         run: terraform plan
+      - name: apply
+        run: terraform apply -auto-approve
+
